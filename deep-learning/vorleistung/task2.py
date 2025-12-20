@@ -212,29 +212,25 @@ def run():
 
     #set default hp values
     batchsize = 32
-    maxnumepochs = 1
+    maxnumepochs = 5
 
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu") #else "cuda:0" with gpu
 
     # Define augmentation settings
-    #aug_settings = {
-    #    'Strong Augmentation': transforms.Compose([
-    #        transforms.RandomHorizontalFlip(),
-    #        transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.1),
-    #        transforms.RandomRotation(10)
-    #    ]),
-    #    'Mild Augmentation': transforms.Compose([
-    #        transforms.RandomHorizontalFlip()
-    #    ]),
-    #    'No Augmentation': None,
-    #}
     aug_settings = {
+        'Strong Augmentation': transforms.Compose([
+            transforms.RandomHorizontalFlip(),
+            transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.1),
+            transforms.RandomRotation(10)
+        ]),
+        'Mild Augmentation': transforms.Compose([
+            transforms.RandomHorizontalFlip()
+        ]),
         'No Augmentation': None,
     }
 
     #params for cross validation
-    #lrates=[0.001, 0.01, 0.0001]
-    lrates=[0.001]
+    lrates=[0.001, 0.01]
 
     best_augmentation = None
     best_hyperparameter= None
@@ -307,6 +303,23 @@ def run():
     report += f'Batch Size: {batchsize}\n'
     report += f'All Hyperparameters: LR={lrates}\n'
     report += f'All Augmentations: {aug_settings.keys()}\n'
+    
+    torch.save(logits, results_dir / 'logits.pt')
+    pd.DataFrame({'image_path': dataloaders['test'].dataset.images.iloc[:, 0]}).to_csv(results_dir / 'logits.csv', index=False)
+
+    for i, cls_name in enumerate(class_names):
+        top_5_scoring_images = torch.topk(logits[:, i], k=5).indices
+        bottom_5_scoring_images = torch.topk(logits[:, i], k=5, largest=False).indices
+
+        top_5_scoring_images = "  - " + dataloaders['test'].dataset.images.iloc[top_5_scoring_images.numpy(), 0]
+        bottom_5_scoring_images = "  - " + dataloaders['test'].dataset.images.iloc[bottom_5_scoring_images.numpy(), 0]
+
+        report += f'\nTop 5 Scoring Images for {cls_name}:\n'
+        report += '\n'.join(top_5_scoring_images)
+        report += f'\nBottom 5 Scoring Images for {cls_name}:\n'
+        report += '\n'.join(bottom_5_scoring_images)
+        report += '\n'
+
     print(report)
 
     with open(results_dir / 'report.txt', 'w') as f:
@@ -314,9 +327,7 @@ def run():
     
     with open(results_dir / 'model.pkl', 'wb') as f:
         pickle.dump(model, f)
-    
-    torch.save(logits, results_dir / 'logits.pt')
-    pd.DataFrame({'image_path': dataloaders['test'].dataset.images.iloc[:, 0]}).to_csv(results_dir / 'logits.csv', index=False)
+        
 
 if __name__=='__main__':
   run()
