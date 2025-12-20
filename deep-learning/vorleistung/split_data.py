@@ -1,73 +1,90 @@
+import os
+import random
+import pandas as pd
+
 from pathlib import Path
 from sklearn.model_selection import train_test_split
-import random
-import csv
-import os
 
-# set root path and seed
-PROJECT_ROOT = Path(os.getcwd()) #Path(r"C:\Users\tdoro\DLMS\mandatory_task")
+PROJECT_ROOT = Path(os.getcwd()) # for an absolute path: Path(r"/home/luca/projects/deeplearning/codingtask")
 DATASET_NAME = "EuroSAT_MS"
-DATASET_ROOT = PROJECT_ROOT / DATASET_NAME
+DATASET_PATH = Path(os.getcwd()) / "data" / DATASET_NAME
 
-# use mat-nr as seed
-RANDOM_SEED = 3778660
-random.seed(RANDOM_SEED)
+SEED = 3778660
 
-train_list = []
-val_list = []
-test_list = []
+TRAIN_SIZE = 2500
+TEST_SIZE = 2000
+VAL_SIZE = 1000
 
-#iterate trough dataset dirs/class folders and perform train/val/test splits on every class seperately
-for class_dir in sorted(DATASET_ROOT.iterdir()):
-    if class_dir.is_dir():
-        label = class_dir.name
+random.seed(SEED)
 
-        class_files = [p.relative_to(PROJECT_ROOT) for p in class_dir.glob("*.tif")]
-        
-        #splitting data into train, val, test
-        train, test = train_test_split(class_files, test_size=0.2, random_state = RANDOM_SEED)
-        train, val = train_test_split(train, test_size = 0.2, random_state = RANDOM_SEED)
+# Find images in data
+total_images = [p.relative_to(DATASET_PATH) for p in DATASET_PATH.glob("*/*.tif")]
+total_labels = [img.parent.name for img in total_images]
 
-        #write into lists, adding tuple with filepath and label
-        train_list.extend((str(p), label) for p in train)
-        val_list.extend((str(p), label) for p in val)
-        test_list.extend((str(p), label) for p in test)
+# Split the data
+train_images, test_images, train_labels, test_labels = train_test_split(
+    total_images,
+    total_labels,
+    test_size=TEST_SIZE,
+    train_size=TRAIN_SIZE+VAL_SIZE,
+    random_state=SEED,
+    stratify=total_labels
+)
 
-#check length
-print(len(train_list))
-print(len(val_list))
-print(len(test_list))
+train_images, val_images, train_labels, val_labels = train_test_split(
+    train_images,
+    train_labels,
+    test_size=VAL_SIZE,
+    train_size=TRAIN_SIZE,
+    random_state=SEED,
+    stratify=train_labels
+)
 
-#check if disjoint -> no error output when disjoint. 
-#have to turn lists into sets first to use isdisjoint operator
-assert set(train_list).isdisjoint(set(val_list)) 
-assert set(train_list).isdisjoint(set(test_list))
-assert set(val_list).isdisjoint(set(test_list))
+data_splits = {
+    "Total": (total_images, total_labels),
+    "Train": (train_images, train_labels),
+    "Test": (test_images, test_labels),
+    "Val": (val_images, val_labels)
+}
 
-#shuffle lists just to be sure
-random.shuffle(train_list)
-random.shuffle(val_list)
-random.shuffle(test_list)
+# Print stats and checks
+print("------------------- Dataset Size -------------------")
+for name, (_, labels) in data_splits.items():
+    print(f"{name:<10} {len(labels):>8}")
+print("----------------------------------------------------\n")
 
-#select smaller amount of datapoints due to hardware constraints
-train_list = train_list[:2500]
-val_list = val_list[:1000]
-test_list = test_list[:2000]
 
-#check length
-print(len(train_list))
-print(len(val_list))
-print(len(test_list))
+print("---------------- Class Distribution ----------------")
+stats = pd.concat(
+    [pd.Series(v[1]).value_counts(normalize=True).rename(k) for k, v in data_splits.items()],
+    axis=1
+)
 
-#save data in 3 seperate csv files
-# 2 columns with "filepath, label" as per tupels stored in lists
-def write_csv(path, data):
-    with open(path, "w", newline="") as f:
-        writer = csv.writer(f)
-        writer.writerow(["filepath", "label"])  # Header
-        for fp, label in data:
-            writer.writerow([fp, label])
+print(stats.sort_index().map(lambda x: f"{x:.2%}") )
+print("----------------------------------------------------\n")
 
-write_csv(PROJECT_ROOT / "train.csv", train_list)
-write_csv(PROJECT_ROOT / "val.csv",   val_list)
-write_csv(PROJECT_ROOT / "test.csv",  test_list)
+
+print("------------------ Verify Disjoint -----------------")
+train_test_disjoint = not any(img in test_images for img in train_images)
+train_val_disjoint = not any(img in val_images for img in train_images)
+test_val_disjoint = not any(img in val_images for img in test_images)
+
+print(f"Train and Test sets disjoint = {train_test_disjoint}")
+print(f"Train and Val sets disjoint  = {train_val_disjoint}")
+print(f"Test and Val sets disjoint   = {test_val_disjoint}")
+
+assert train_test_disjoint
+assert train_val_disjoint
+assert test_val_disjoint
+print("----------------------------------------------------")
+
+# Write to file
+os.makedirs(f"data_splits/{DATASET_NAME}", exist_ok=True)
+
+for name, (images, labels) in data_splits.items():
+    if name == "Total":
+        continue
+
+    df = pd.DataFrame({"filepath": images, "label": labels})
+    df["filepath"] = DATASET_NAME + "/" + df["filepath"].astype(str)
+    df.to_csv(f"data_splits/{DATASET_NAME}/{name.lower()}.csv", index=False)
