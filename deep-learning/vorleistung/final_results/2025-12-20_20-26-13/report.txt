@@ -1,4 +1,6 @@
 Final Result: val_acc=0.8810, test_acc=0.8735
+
+Class                   TPR
 AnnualCrop            : 0.9505
 Forest                : 0.9865
 HerbaceousVegetation  : 0.7523
