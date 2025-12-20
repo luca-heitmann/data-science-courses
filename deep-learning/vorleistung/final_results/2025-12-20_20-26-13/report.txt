@@ -1,0 +1,148 @@
+Final Result: val_acc=0.8810, test_acc=0.8735
+AnnualCrop            : 0.9505
+Forest                : 0.9865
+HerbaceousVegetation  : 0.7523
+Highway               : 0.8108
+Industrial            : 0.7838
+Pasture               : 0.9392
+PermanentCrop         : 0.7351
+Residential           : 0.9686
+River                 : 0.8919
+SeaLake               : 0.8919
+
+Best Hyperparameter: LR=0.001
+Best Augmentation: Mild Augmentation
+Num Epochs: 5
+Batch Size: 32
+All Hyperparameters: LR=[0.001, 0.01]
+All Augmentations: dict_keys(['Strong Augmentation', 'Mild Augmentation', 'No Augmentation'])
+
+Top 5 Scoring Images for AnnualCrop:
+  - EuroSAT_MS/AnnualCrop/AnnualCrop_253.tif
+  - EuroSAT_MS/AnnualCrop/AnnualCrop_1904.tif
+  - EuroSAT_MS/AnnualCrop/AnnualCrop_1313.tif
+  - EuroSAT_MS/AnnualCrop/AnnualCrop_136.tif
+  - EuroSAT_MS/AnnualCrop/AnnualCrop_274.tif
+Bottom 5 Scoring Images for AnnualCrop:
+  - EuroSAT_MS/Industrial/Industrial_740.tif
+  - EuroSAT_MS/Highway/Highway_2483.tif
+  - EuroSAT_MS/Industrial/Industrial_300.tif
+  - EuroSAT_MS/Forest/Forest_309.tif
+  - EuroSAT_MS/Industrial/Industrial_1870.tif
+
+Top 5 Scoring Images for Forest:
+  - EuroSAT_MS/Forest/Forest_309.tif
+  - EuroSAT_MS/Forest/Forest_1811.tif
+  - EuroSAT_MS/Forest/Forest_251.tif
+  - EuroSAT_MS/Forest/Forest_2411.tif
+  - EuroSAT_MS/Forest/Forest_1566.tif
+Bottom 5 Scoring Images for Forest:
+  - EuroSAT_MS/Residential/Residential_425.tif
+  - EuroSAT_MS/Residential/Residential_1767.tif
+  - EuroSAT_MS/Residential/Residential_1205.tif
+  - EuroSAT_MS/Residential/Residential_1657.tif
+  - EuroSAT_MS/Residential/Residential_1658.tif
+
+Top 5 Scoring Images for HerbaceousVegetation:
+  - EuroSAT_MS/HerbaceousVegetation/HerbaceousVegetation_649.tif
+  - EuroSAT_MS/HerbaceousVegetation/HerbaceousVegetation_2301.tif
+  - EuroSAT_MS/HerbaceousVegetation/HerbaceousVegetation_154.tif
+  - EuroSAT_MS/HerbaceousVegetation/HerbaceousVegetation_2021.tif
+  - EuroSAT_MS/HerbaceousVegetation/HerbaceousVegetation_1505.tif
+Bottom 5 Scoring Images for HerbaceousVegetation:
+  - EuroSAT_MS/Highway/Highway_2146.tif
+  - EuroSAT_MS/Highway/Highway_477.tif
+  - EuroSAT_MS/Highway/Highway_1632.tif
+  - EuroSAT_MS/Highway/Highway_1563.tif
+  - EuroSAT_MS/Industrial/Industrial_740.tif
+
+Top 5 Scoring Images for Highway:
+  - EuroSAT_MS/Highway/Highway_2412.tif
+  - EuroSAT_MS/Highway/Highway_2146.tif
+  - EuroSAT_MS/Highway/Highway_1632.tif
+  - EuroSAT_MS/Highway/Highway_1828.tif
+  - EuroSAT_MS/Highway/Highway_2483.tif
+Bottom 5 Scoring Images for Highway:
+  - EuroSAT_MS/Pasture/Pasture_943.tif
+  - EuroSAT_MS/Residential/Residential_379.tif
+  - EuroSAT_MS/Pasture/Pasture_651.tif
+  - EuroSAT_MS/Pasture/Pasture_1969.tif
+  - EuroSAT_MS/Forest/Forest_309.tif
+
+Top 5 Scoring Images for Industrial:
+  - EuroSAT_MS/Industrial/Industrial_300.tif
+  - EuroSAT_MS/Industrial/Industrial_1870.tif
+  - EuroSAT_MS/Industrial/Industrial_1988.tif
+  - EuroSAT_MS/Industrial/Industrial_740.tif
+  - EuroSAT_MS/Industrial/Industrial_1206.tif
+Bottom 5 Scoring Images for Industrial:
+  - EuroSAT_MS/SeaLake/SeaLake_2107.tif
+  - EuroSAT_MS/SeaLake/SeaLake_1482.tif
+  - EuroSAT_MS/SeaLake/SeaLake_1481.tif
+  - EuroSAT_MS/SeaLake/SeaLake_360.tif
+  - EuroSAT_MS/SeaLake/SeaLake_2706.tif
+
+Top 5 Scoring Images for Pasture:
+  - EuroSAT_MS/Pasture/Pasture_651.tif
+  - EuroSAT_MS/Pasture/Pasture_1969.tif
+  - EuroSAT_MS/Pasture/Pasture_1355.tif
+  - EuroSAT_MS/Pasture/Pasture_943.tif
+  - EuroSAT_MS/Pasture/Pasture_568.tif
+Bottom 5 Scoring Images for Pasture:
+  - EuroSAT_MS/Industrial/Industrial_740.tif
+  - EuroSAT_MS/River/River_1629.tif
+  - EuroSAT_MS/River/River_1005.tif
+  - EuroSAT_MS/River/River_223.tif
+  - EuroSAT_MS/River/River_1616.tif
+
+Top 5 Scoring Images for PermanentCrop:
+  - EuroSAT_MS/PermanentCrop/PermanentCrop_191.tif
+  - EuroSAT_MS/PermanentCrop/PermanentCrop_254.tif
+  - EuroSAT_MS/PermanentCrop/PermanentCrop_352.tif
+  - EuroSAT_MS/PermanentCrop/PermanentCrop_403.tif
+  - EuroSAT_MS/PermanentCrop/PermanentCrop_1182.tif
+Bottom 5 Scoring Images for PermanentCrop:
+  - EuroSAT_MS/River/River_1629.tif
+  - EuroSAT_MS/River/River_1005.tif
+  - EuroSAT_MS/River/River_223.tif
+  - EuroSAT_MS/River/River_78.tif
+  - EuroSAT_MS/River/River_276.tif
+
+Top 5 Scoring Images for Residential:
+  - EuroSAT_MS/Residential/Residential_425.tif
+  - EuroSAT_MS/Residential/Residential_1767.tif
+  - EuroSAT_MS/Residential/Residential_1205.tif
+  - EuroSAT_MS/Residential/Residential_1657.tif
+  - EuroSAT_MS/Residential/Residential_1658.tif
+Bottom 5 Scoring Images for Residential:
+  - EuroSAT_MS/SeaLake/SeaLake_2107.tif
+  - EuroSAT_MS/SeaLake/SeaLake_1482.tif
+  - EuroSAT_MS/SeaLake/SeaLake_1481.tif
+  - EuroSAT_MS/SeaLake/SeaLake_360.tif
+  - EuroSAT_MS/SeaLake/SeaLake_2706.tif
+
+Top 5 Scoring Images for River:
+  - EuroSAT_MS/River/River_1629.tif
+  - EuroSAT_MS/River/River_1005.tif
+  - EuroSAT_MS/River/River_78.tif
+  - EuroSAT_MS/River/River_2311.tif
+  - EuroSAT_MS/River/River_1425.tif
+Bottom 5 Scoring Images for River:
+  - EuroSAT_MS/SeaLake/SeaLake_2107.tif
+  - EuroSAT_MS/SeaLake/SeaLake_1482.tif
+  - EuroSAT_MS/SeaLake/SeaLake_1481.tif
+  - EuroSAT_MS/SeaLake/SeaLake_360.tif
+  - EuroSAT_MS/SeaLake/SeaLake_2706.tif
+
+Top 5 Scoring Images for SeaLake:
+  - EuroSAT_MS/SeaLake/SeaLake_2107.tif
+  - EuroSAT_MS/SeaLake/SeaLake_1482.tif
+  - EuroSAT_MS/SeaLake/SeaLake_1481.tif
+  - EuroSAT_MS/SeaLake/SeaLake_360.tif
+  - EuroSAT_MS/SeaLake/SeaLake_2706.tif
+Bottom 5 Scoring Images for SeaLake:
+  - EuroSAT_MS/Residential/Residential_425.tif
+  - EuroSAT_MS/Residential/Residential_1767.tif
+  - EuroSAT_MS/Residential/Residential_1205.tif
+  - EuroSAT_MS/Residential/Residential_1657.tif
+  - EuroSAT_MS/Residential/Residential_1658.tif
