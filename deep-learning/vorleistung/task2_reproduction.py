@@ -6,18 +6,14 @@ import numpy as np
 import torch
 import torchvision
 import torch.nn as nn
-import torch.optim as optim
 from torchvision.models import resnet18
 from pathlib import Path
 from torch.utils.data import Dataset
 from tifffile import imread
 
-from torchvision import transforms
-import matplotlib.pyplot as plt
-from datetime import datetime
-
 # set root path and seed
 PROJECT_ROOT = Path("/Users/luca/Projects/ms-data-science/deep-learning/vorleistung") #Path(os.getcwd()) #Path(r"C:\Users\tdoro\DLMS\mandatory_task")
+MODEL_PATH = PROJECT_ROOT / "final_results/2025-12-20_20-26-13/model.pkl"
 DATASET_NAME = "EuroSAT_MS"
 DATASET_ROOT = Path("/Users/luca/Projects/ms-data-science/deep-learning/vorleistung") / "data" #Path(os.getcwd()) / "data"
 
@@ -27,7 +23,10 @@ random.seed(RANDOM_SEED)
 torch.manual_seed(RANDOM_SEED)
 np.random.seed(RANDOM_SEED)
 
-results_dir = PROJECT_ROOT / f"training_results/{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}"
+generate_logits = False
+reproduction_dir = PROJECT_ROOT / "reproduction"
+
+os.makedirs(reproduction_dir, exist_ok=True)
 
 #dataset class
 class EuroSatMsDataset(Dataset):
@@ -59,6 +58,23 @@ class EuroSatMsDataset(Dataset):
 
         return image, label
 
+#model for task 2
+class EuroSatResNet18(nn.Module):
+    def __init__(self, num_classes):
+        super().__init__()
+
+        #load pretrained model
+        self.backbone = resnet18(weights=torchvision.models.ResNet18_Weights.DEFAULT)
+        # Adapt avgpool to handle small input sizes (like 64x64 -> 2x2 feature map)
+        self.backbone.avgpool = nn.AdaptiveAvgPool2d(1)
+        
+        #replace last layer according to our classification classes
+        in_features = self.backbone.fc.in_features
+        self.backbone.fc = nn.Linear(in_features, num_classes)
+
+    def forward(self, x): # x shape: (batch_size, 3, H, W) bzw. (batch_size, C, H, W) bzw. (32, 3, 64, 64)
+        return self.backbone(x)
+
 def predict_logits(model, dataloader, device):
     model.eval() # set model to inference mode
 
@@ -78,23 +94,29 @@ def predict_logits(model, dataloader, device):
     return torch.cat(logits)
 
 def run():
+    batchsize = 32
+
+    with open(MODEL_PATH, 'rb') as f:
+        model = pickle.load(f)
+    
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    model.to(device)
 
-    # end of for loop over augmentations/hyperparameters here!
-    model.load_state_dict(weights_chosen)
-    accuracy,_,tpr_per_class,logits = evaluate(model = model , dataloader  = dataloaders['test'], criterion = None, device = device)
-    report = f'Final Result: val_acc={bestmeasure.item():.4f}, test_acc={accuracy.item():.4f}\n'
+    test_dataset = EuroSatMsDataset(DATASET_ROOT, PROJECT_ROOT / "data_splits" / DATASET_NAME / "test.csv")
+    test_dataloader = torch.utils.data.DataLoader(test_dataset, batch_size=batchsize, shuffle=False)
 
-    class_names = dataloaders['train'].dataset.classes
-    for i, cls_name in enumerate(class_names):
-        report += f'{cls_name:<22}: {tpr_per_class[i]:.4f}\n'
+    logits = predict_logits(model, test_dataloader, device)
     
-    report += f'\nBest Hyperparameter: LR={best_hyperparameter}\n'
-    report += f'Best Augmentation: {best_augmentation}\n'
-    
-    #torch.save(logits, results_dir / 'logits.pt')
-    #pd.DataFrame({'image_path': dataloaders['test'].dataset.images.iloc[:, 0]}).to_csv(results_dir / 'logits.csv', index=False)
+    if generate_logits:
+        torch.save(logits, reproduction_dir / 'logits.pt')
+        pd.DataFrame({'image_path': test_dataset.images.iloc[:, 0]}).to_csv(reproduction_dir / 'logits.csv', index=False)
 
+        print("Logits saved")
+    else:
+        prev_logits = torch.load(reproduction_dir / 'logits.pt')
+        assert torch.allclose(prev_logits, logits)
+
+        print("Logits match")
 
 if __name__=='__main__':
   run()
