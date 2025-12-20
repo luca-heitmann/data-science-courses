@@ -15,6 +15,7 @@ from tifffile import imread
 from torchvision import transforms
 import matplotlib.pyplot as plt
 from datetime import datetime
+from types import MethodType
 
 # set root path and seed
 PROJECT_ROOT = Path("/Users/luca/Projects/ms-data-science/deep-learning/vorleistung") #Path(os.getcwd()) #Path(r"C:\Users\tdoro\DLMS\mandatory_task")
@@ -30,7 +31,7 @@ np.random.seed(RANDOM_SEED)
 results_dir = PROJECT_ROOT / f"training_results/{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}"
 
 #dataset class task3
-class TASK3EuroSatMsDataset(Dataset):
+class EuroSatMsDataset(Dataset):
     def __init__(self, dataset_path, split_file, transform=None):
         self.dataset_root_dir = dataset_path
         self.images = pd.read_csv(split_file)
@@ -78,23 +79,53 @@ class TASK3EuroSatMsDataset(Dataset):
         return image, label
 
 
-#model for task 2
 class EuroSatResNet18(nn.Module):
     def __init__(self, num_classes):
         super().__init__()
 
         #load pretrained model
         self.backbone = resnet18(weights=torchvision.models.ResNet18_Weights.DEFAULT)
-        # Adapt avgpool to handle small input sizes (like 64x64 -> 2x2 feature map)
-        self.backbone.avgpool = nn.AdaptiveAvgPool2d(1)
+        self.backbone.forward = MethodType(_resnet_forward_impl, self.backbone)
         
         #replace last layer according to our classification classes
-        in_features = self.backbone.fc.in_features
-        self.backbone.fc = nn.Linear(in_features, num_classes)
+        self.fc = nn.Linear(512*2, num_classes)
 
-    def forward(self, x): # x shape: (batch_size, 3, H, W) bzw. (batch_size, C, H, W) bzw. (32, 3, 64, 64)
-        return self.backbone(x)
-    
+    def forward(self, x):
+        # x shape: (batch_size, 6, H, W) bzw. (batch_size, C, H, W) bzw. (32, 6, 64, 64)
+
+        x1 = x[:, 0:3, :, :]
+        x2 = x[:, 3:6, :, :]
+
+        logits1 = self.backbone(x1)
+        logits2 = self.backbone(x2)
+        logits = torch.cat((logits1, logits2), dim=1)
+        
+        # Flatten the output: (batch_size, 512, 1, 1) -> (batch_size, 512)
+        logits = torch.flatten(logits, 1)
+        logits = self.fc(logits)
+
+        # output shape: (batch_size, num_classes)
+        return logits
+
+def _resnet_forward_impl(self, x):
+    # input shape: (batch_size, 6, H, W)
+    x = self.conv1(x)
+    x = self.bn1(x)
+    x = self.relu(x)
+    x = self.maxpool(x)
+
+    x = self.layer1(x)
+    x = self.layer2(x)
+    x = self.layer3(x)
+    x = self.layer4(x)
+
+    x = self.avgpool(x)
+    #x = torch.flatten(x, 1)
+    #x = self.fc(x)
+
+    # output shape: (batch_size, 512, 1, 1)
+    return x
+
 def train_epoch(model,  trainloader,  criterion, device, optimizer ):
 
     model.train() # IMPORTANT!!!
@@ -231,29 +262,25 @@ def run():
 
     #set default hp values
     batchsize = 32
-    maxnumepochs = 1
+    maxnumepochs = 5
 
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu") #else "cuda:0" with gpu
 
     # Define augmentation settings
-    #aug_settings = {
-    #    'Strong Augmentation': transforms.Compose([
-    #        transforms.RandomHorizontalFlip(),
-    #        transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.1),
-    #        transforms.RandomRotation(10)
-    #    ]),
-    #    'Mild Augmentation': transforms.Compose([
-    #        transforms.RandomHorizontalFlip()
-    #    ]),
-    #    'No Augmentation': None,
-    #}
     aug_settings = {
+        'Strong Augmentation': transforms.Compose([
+            transforms.RandomHorizontalFlip(),
+            #transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.1), does not work with 6 channels
+            transforms.RandomRotation(10)
+        ]),
+        'Mild Augmentation': transforms.Compose([
+            transforms.RandomHorizontalFlip()
+        ]),
         'No Augmentation': None,
     }
 
     #params for cross validation
-    #lrates=[0.001, 0.01, 0.0001]
-    lrates=[0.001]
+    lrates=[0.001, 0.01]
 
     best_augmentation = None
     best_hyperparameter= None
@@ -326,6 +353,23 @@ def run():
     report += f'Batch Size: {batchsize}\n'
     report += f'All Hyperparameters: LR={lrates}\n'
     report += f'All Augmentations: {aug_settings.keys()}\n'
+    
+    torch.save(logits, results_dir / 'logits.pt')
+    pd.DataFrame({'image_path': dataloaders['test'].dataset.images.iloc[:, 0]}).to_csv(results_dir / 'logits.csv', index=False)
+
+    for i, cls_name in enumerate(class_names):
+        top_5_scoring_images = torch.topk(logits[:, i], k=5).indices
+        bottom_5_scoring_images = torch.topk(logits[:, i], k=5, largest=False).indices
+
+        top_5_scoring_images = "  - " + dataloaders['test'].dataset.images.iloc[top_5_scoring_images.numpy(), 0]
+        bottom_5_scoring_images = "  - " + dataloaders['test'].dataset.images.iloc[bottom_5_scoring_images.numpy(), 0]
+
+        report += f'\nTop 5 Scoring Images for {cls_name}:\n'
+        report += '\n'.join(top_5_scoring_images)
+        report += f'\nBottom 5 Scoring Images for {cls_name}:\n'
+        report += '\n'.join(bottom_5_scoring_images)
+        report += '\n'
+
     print(report)
 
     with open(results_dir / 'report.txt', 'w') as f:
@@ -333,9 +377,7 @@ def run():
     
     with open(results_dir / 'model.pkl', 'wb') as f:
         pickle.dump(model, f)
-    
-    torch.save(logits, results_dir / 'logits.pt')
-    pd.DataFrame({'image_path': dataloaders['test'].dataset.images.iloc[:, 0]}).to_csv(results_dir / 'logits.csv', index=False)
+        
 
 if __name__=='__main__':
   run()

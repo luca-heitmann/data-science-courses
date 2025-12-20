@@ -13,7 +13,7 @@ from tifffile import imread
 
 # set root path and seed
 PROJECT_ROOT = Path("/Users/luca/Projects/ms-data-science/deep-learning/vorleistung") #Path(os.getcwd()) #Path(r"C:\Users\tdoro\DLMS\mandatory_task")
-MODEL_PATH = PROJECT_ROOT / "final_results/2025-12-20_20-26-13/model.pkl"
+MODEL_PATH = PROJECT_ROOT / "final_results/2025-12-20_20-26-13-task2-results/model.pkl"
 DATASET_NAME = "EuroSAT_MS"
 DATASET_ROOT = Path("/Users/luca/Projects/ms-data-science/deep-learning/vorleistung") / "data" #Path(os.getcwd()) / "data"
 
