@@ -16,19 +16,17 @@ from torchvision import transforms
 import matplotlib.pyplot as plt
 from datetime import datetime
 from types import MethodType
+from config import PROJECT_ROOT, DATASET_PATH, SEED
 
 # set root path and seed
-PROJECT_ROOT = Path("/Users/luca/Projects/ms-data-science/deep-learning/vorleistung") #Path(os.getcwd()) #Path(r"C:\Users\tdoro\DLMS\mandatory_task")
 DATASET_NAME = "EuroSAT_MS"
-DATASET_ROOT = Path("/Users/luca/Projects/ms-data-science/deep-learning/vorleistung") / "data" #Path(os.getcwd()) / "data"
 
 # use mat-nr as seed
-RANDOM_SEED = 3778660
-random.seed(RANDOM_SEED)
-torch.manual_seed(RANDOM_SEED)
-np.random.seed(RANDOM_SEED)
+random.seed(SEED)
+torch.manual_seed(SEED)
+np.random.seed(SEED)
 
-results_dir = PROJECT_ROOT / f"training_results/{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}"
+results_dir = Path(PROJECT_ROOT) / f"training_results/{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}"
 
 #dataset class task3
 class EuroSatMsDataset(Dataset):
@@ -295,9 +293,9 @@ def run():
 
         #construct data using dataset class
         ds = {
-            'train': EuroSatMsDataset(DATASET_ROOT, PROJECT_ROOT / "data_splits" / DATASET_NAME / "train.csv", transform=aug_transform),
-            'test': EuroSatMsDataset(DATASET_ROOT, PROJECT_ROOT / "data_splits" / DATASET_NAME / "test.csv"),
-            'val': EuroSatMsDataset(DATASET_ROOT, PROJECT_ROOT / "data_splits" / DATASET_NAME / "val.csv"),
+            'train': EuroSatMsDataset(DATASET_PATH, Path(PROJECT_ROOT) / "data_splits" / DATASET_NAME / "train.csv", transform=aug_transform),
+            'test': EuroSatMsDataset(DATASET_PATH, Path(PROJECT_ROOT) / "data_splits" / DATASET_NAME / "test.csv"),
+            'val': EuroSatMsDataset(DATASET_PATH, Path(PROJECT_ROOT) / "data_splits" / DATASET_NAME / "val.csv"),
         }
 
         #load data into batch sizes

@@ -1,42 +1,35 @@
+import config
 import os
 import random
 import pandas as pd
-
 from pathlib import Path
 from sklearn.model_selection import train_test_split
 
-PROJECT_ROOT = Path(os.getcwd()) # for an absolute path: Path(r"/home/luca/projects/deeplearning/codingtask")
 DATASET_NAME = "EuroSAT_MS"
-DATASET_PATH = Path(os.getcwd()) / "data" / DATASET_NAME
+dataset_path = Path(config.DATASET_PATH) / DATASET_NAME
 
-SEED = 3778660
-
-TRAIN_SIZE = 2500
-TEST_SIZE = 2000
-VAL_SIZE = 1000
-
-random.seed(SEED)
+random.seed(config.SEED)
 
 # Find images in data
-total_images = [p.relative_to(DATASET_PATH) for p in DATASET_PATH.glob("*/*.tif")]
+total_images = [p.relative_to(dataset_path) for p in (dataset_path).glob("*/*.tif")]
 total_labels = [img.parent.name for img in total_images]
 
 # Split the data
 train_images, test_images, train_labels, test_labels = train_test_split(
     total_images,
     total_labels,
-    test_size=TEST_SIZE,
-    train_size=TRAIN_SIZE+VAL_SIZE,
-    random_state=SEED,
+    test_size=config.TEST_SIZE,
+    train_size=config.TRAIN_SIZE+config.VAL_SIZE,
+    random_state=config.SEED,
     stratify=total_labels
 )
 
 train_images, val_images, train_labels, val_labels = train_test_split(
     train_images,
     train_labels,
-    test_size=VAL_SIZE,
-    train_size=TRAIN_SIZE,
-    random_state=SEED,
+    test_size=config.VAL_SIZE,
+    train_size=config.TRAIN_SIZE,
+    random_state=config.SEED,
     stratify=train_labels
 )
 
@@ -79,7 +72,7 @@ assert test_val_disjoint
 print("----------------------------------------------------")
 
 # Write to file
-os.makedirs(f"data_splits/{DATASET_NAME}", exist_ok=True)
+os.makedirs(f"{config.PROJECT_ROOT}/data_splits/{DATASET_NAME}", exist_ok=True)
 
 for name, (images, labels) in data_splits.items():
     if name == "Total":
@@ -87,4 +80,4 @@ for name, (images, labels) in data_splits.items():
 
     df = pd.DataFrame({"filepath": images, "label": labels})
     df["filepath"] = DATASET_NAME + "/" + df["filepath"].astype(str)
-    df.to_csv(f"data_splits/{DATASET_NAME}/{name.lower()}.csv", index=False)
+    df.to_csv(f"{config.PROJECT_ROOT}/data_splits/{DATASET_NAME}/{name.lower()}.csv", index=False)

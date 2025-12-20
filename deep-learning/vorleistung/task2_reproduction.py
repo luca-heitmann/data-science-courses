@@ -10,21 +10,17 @@ from torchvision.models import resnet18
 from pathlib import Path
 from torch.utils.data import Dataset
 from tifffile import imread
+from config import PROJECT_ROOT, DATASET_PATH, SEED, REPRODUCTION_MODEL_PATH
 
 # set root path and seed
-PROJECT_ROOT = Path("/Users/luca/Projects/ms-data-science/deep-learning/vorleistung") #Path(os.getcwd()) #Path(r"C:\Users\tdoro\DLMS\mandatory_task")
-MODEL_PATH = PROJECT_ROOT / "final_results/2025-12-20_20-26-13-task2-results/model.pkl"
 DATASET_NAME = "EuroSAT_MS"
-DATASET_ROOT = Path("/Users/luca/Projects/ms-data-science/deep-learning/vorleistung") / "data" #Path(os.getcwd()) / "data"
 
 # use mat-nr as seed
-RANDOM_SEED = 3778660
-random.seed(RANDOM_SEED)
-torch.manual_seed(RANDOM_SEED)
-np.random.seed(RANDOM_SEED)
+random.seed(SEED)
+torch.manual_seed(SEED)
+np.random.seed(SEED)
 
-generate_logits = False
-reproduction_dir = PROJECT_ROOT / "reproduction"
+reproduction_dir = Path(PROJECT_ROOT) / "reproduction"
 
 os.makedirs(reproduction_dir, exist_ok=True)
 
@@ -93,16 +89,24 @@ def predict_logits(model, dataloader, device):
     
     return torch.cat(logits)
 
+import argparse
+
 def run():
+    parser = argparse.ArgumentParser(description='Task 2 Reproduction')
+    parser.add_argument('--generate-logits', action='store_true', help='Generate and save logits instead of checking them')
+    args = parser.parse_args()
+    
+    generate_logits = args.generate_logits
+
     batchsize = 32
 
-    with open(MODEL_PATH, 'rb') as f:
+    with open(REPRODUCTION_MODEL_PATH, 'rb') as f:
         model = pickle.load(f)
     
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     model.to(device)
 
-    test_dataset = EuroSatMsDataset(DATASET_ROOT, PROJECT_ROOT / "data_splits" / DATASET_NAME / "test.csv")
+    test_dataset = EuroSatMsDataset(DATASET_PATH, Path(PROJECT_ROOT) / "data_splits" / DATASET_NAME / "test.csv")
     test_dataloader = torch.utils.data.DataLoader(test_dataset, batch_size=batchsize, shuffle=False)
 
     logits = predict_logits(model, test_dataloader, device)
