@@ -165,15 +165,15 @@ plot_topic_comparison(
 )
 
 # 6. Auch andere Gruppierungen möglich:
-# Nach Regierungsparty und Ausrichtung
+# Nach Regierungsparty
 party_comparison = compare_subcorpora(
-    environment_speeches[environment_speeches["Party_status"] == "Coalition"],
+    environment_speeches,
     lda_model,
     vectorizer,
-    group_column="Party_orientation",
+    group_column="Party_status",
 )
 plot_topic_comparison(
-    party_comparison, save_path=f"{OUTPUT_DIR}/topic_comparison_coalition_party.png"
+    party_comparison, save_path=f"{OUTPUT_DIR}/topic_comparison_party_status.png"
 )
 
 # Nach Party filtered
