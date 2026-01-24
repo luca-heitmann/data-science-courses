@@ -1,10 +1,10 @@
-Topic 0: government, party, climate, tax, like, emissions, transport, sweden, cars, green
-Topic 1: water, waste, thank, million, dear, drinking, ministry, supply, years, mr
-Topic 2: government, mr, public, gentlemen, environmental, ladies, group, ecological, applause, problem
-Topic 3: minister, mr, question, motion, state, like, chairman, thank, mrs, secretary
-Topic 4: waste, government, plastic, noble, lord, environment, recycling, uk, use, products
-Topic 5: think, say, people, just, like, going, know, don, said, want
-Topic 6: environmental, law, environment, european, waste, protection, ministry, impact, government, management
-Topic 7: climate, change, energy, emissions, european, carbon, government, countries, world, policy
-Topic 8: law, amendment, committee, proposal, article, vote, amendments, draft, environment, act
-Topic 9: nature, forest, protection, areas, species, natural, biodiversity, sea, land, environment
+Topic 0: tree, hon, ship, standard, wood, port, friend, year, power, thing, plant, aim, rest, gentleman, benefit, lady, greenhouse, progress, ability, health
+Topic 1: climate, climate change, change, agreement, people, debate, climate agreement, country, world, government, emergency, time, policy, action, year, crisis, climate emergency, question, issue, party
+Topic 2: water, drinking, drinking water, sanitation, supply, water supply, river, drought, transfer, water water, groundwater, water management, community, management, municipality, problem, quality, source, resource, stream
+Topic 3: amendment, proposal, vote, draft, committee, law, debate, item, reading, draft law, report, agenda, lady, gentleman, request, lady gentleman, rapporteur, committee environment, environment, meeting
+Topic 4: motion, resolution, motion resolution, vote, chairman, article, commission, statement, item, presentation, senator, proposal, amendment, establishment, talk, law, declaration, section, text, agenda
+Topic 5: law, question, amendment, government, minister, time, environment, project, year, case, company, issue, water, course, point, decision, impact, work, way, area
+Topic 6: nature, forest, area, nitrogen, species, year, biodiversity, minister, animal, government, question, people, time, protection, wolf, land, environment, problem, country, thing
+Topic 7: waste, plastic, air, pollution, product, recycling, quality, air quality, government, use, year, problem, packaging, amendment, air pollution, health, material, people, bag, question
+Topic 8: floor, minister, question, speaker, question minister, minister environment, behalf, environment, rapporteur, opinion, minute, reply, representative, answer, food, government, item, member, debate, time
+Topic 9: climate, emission, government, tax, carbon, energy, policy, car, year, target, agreement, country, gas, cabinet, change, question, time, sector, reduction, transport
