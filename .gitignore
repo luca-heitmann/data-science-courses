@@ -2,3 +2,8 @@ EuroSAT_MS
 homework_data
 __pycache__
 training_results
+deep-learning/hw5/val*
+deep-learning/hw5/imagenet-val*
+deep-learning/hw9/val2017
+deep-learning/hw9/annotations
+deep-learning/hw9/voc2007

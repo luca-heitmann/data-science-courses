@@ -1,0 +1,84 @@
+Executing A
+Epoch: 0/4
+==========
+Accuracy: 0.01600000075995922
+Current best is 0.01600000075995922 at epoch 0
+
+Epoch: 1/4
+==========
+Accuracy: 0.02800000086426735
+Current best is 0.02800000086426735 at epoch 1
+
+Epoch: 2/4
+==========
+Accuracy: 0.02800000086426735
+Current best is 0.02800000086426735 at epoch 1
+
+Epoch: 3/4
+==========
+Accuracy: 0.03999999910593033
+Current best is 0.03999999910593033 at epoch 3
+
+Epoch: 4/4
+==========
+Accuracy: 0.05999999865889549
+Current best is 0.05999999865889549 at epoch 4
+
+Accuracy on test set: 0.04600000008940697
+----------------------------------
+Executing B
+Downloading: "https://download.pytorch.org/models/efficientnet_v2_s-dd5fe13b.pth" to /Users/luca/.cache/torch/hub/checkpoints/efficientnet_v2_s-dd5fe13b.pth
+Epoch: 0/4
+==========
+Accuracy: 0.1599999964237213
+Current best is 0.1599999964237213 at epoch 0
+
+Epoch: 1/4
+==========
+Accuracy: 0.3140000104904175
+Current best is 0.3140000104904175 at epoch 1
+
+Epoch: 2/4
+==========
+Accuracy: 0.49799999594688416
+Current best is 0.49799999594688416 at epoch 2
+
+Epoch: 3/4
+==========
+Accuracy: 0.5799999833106995
+Current best is 0.5799999833106995 at epoch 3
+
+Epoch: 4/4
+==========
+Accuracy: 0.6620000600814819
+Current best is 0.6620000600814819 at epoch 4
+
+Accuracy on test set: 0.6819999814033508
+----------------------------------
+Executing C
+Epoch: 0/4
+==========
+Accuracy: 0.12999999523162842
+Current best is 0.12999999523162842 at epoch 0
+
+Epoch: 1/4
+==========
+Accuracy: 0.25999999046325684
+Current best is 0.25999999046325684 at epoch 1
+
+Epoch: 2/4
+==========
+Accuracy: 0.32600000500679016
+Current best is 0.32600000500679016 at epoch 2
+
+Epoch: 3/4
+==========
+Accuracy: 0.3840000033378601
+Current best is 0.3840000033378601 at epoch 3
+
+Epoch: 4/4
+==========
+Accuracy: 0.4180000126361847
+Current best is 0.4180000126361847 at epoch 4
+
+Accuracy on test set: 0.43799999356269836
