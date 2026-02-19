@@ -1,0 +1,4 @@
+--- Starting fine-tuning for model_type: gpt2 ---
+Model configured with LoRA:
+trainable params: 294912 || all params: 124734720 || trainable%: 0.24
+Starting training...
