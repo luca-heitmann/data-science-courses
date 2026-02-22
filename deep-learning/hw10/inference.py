@@ -12,10 +12,10 @@
 #
 # Usage:
 # For GPT-2:
-# python finetune.py --model_type gpt2 --epochs 1 --output_dir ./gpt2-samsum
+# python inference.py --model_type gpt2 --output_dir ./gpt2-samsum
 #
 # For T5:
-# python finetune.py --model_type t5 --epochs 1 --output_dir ./t5-samsum
+# python inference.py --model_type t5 --output_dir ./t5-samsum
 #
 
 import os
@@ -263,73 +263,16 @@ def main(args):
         load_in_8bit=True,
     )
 
-    # Load in 8-bit for memory savings
-    model = model_class.from_pretrained(
-        model_name,
-        quantization_config=bnb_config,
-        device_map="auto",  # Automatically distributes model across GPU/CPU
-    )
-
     # 4. Load and Prepare Dataset
     # This line will automatically download and cache the dataset
     dataset = load_dataset("samsum")
     dataset = dataset["train"].train_test_split(test_size=0.1)
 
-    # Apply the model-specific preprocessing function
-    tokenized_datasets = dataset.map(
-        lambda examples: preprocess_function(examples, tokenizer),
-        batched=True,
-        remove_columns=dataset["train"].column_names,
-    )
-
-    # 5. Configure LoRA (PEFT)
-    # Prepare model for 8-bit training
-    model = prepare_model_for_kbit_training(model)
-    # Apply LoRA config
-    model = get_peft_model(model, lora_config)
-
-    print("Model configured with LoRA:")
-    print_trainable_parameters(model)
-
-    # 6. Set Training Arguments
-    training_args = TrainingArguments(
-        output_dir=args.output_dir,
-        per_device_train_batch_size=args.batch_size,
-        gradient_accumulation_steps=args.grad_accumulation,
-        num_train_epochs=args.epochs,
-        learning_rate=args.learning_rate,
-        fp16=False,  # Use mixed precision
-        logging_steps=1,
-        save_total_limit=2,
-        report_to="none",
-    )
-
-    # 7. Define Trainer
-    # We use DataCollatorForSeq2Seq for both models as it correctly
-    # handles pre-computed labels for Causal LM fine-tuning.
-    if args.model_type == "gpt2":
-        data_collator = DataCollatorClass(tokenizer, model=model, padding="longest")
-    else:  # t5
-        data_collator = DataCollatorClass(tokenizer, model=model, padding="longest")
-
-    trainer = Trainer(
-        model=model,
-        args=training_args,
-        train_dataset=tokenized_datasets["train"],
-        eval_dataset=tokenized_datasets["test"],
-        data_collator=data_collator,
-    )
-
-    # 8. Train!
-    print("Starting training...")
-    trainer.train()
-    print("Training finished.")
-
     # 9. Save the LoRA adapter
     adapter_dir = os.path.join(args.output_dir, "final_adapter")
-    model.save_pretrained(adapter_dir)
-    tokenizer.save_pretrained(adapter_dir)
-    print(f"Adapter saved to {adapter_dir}")
+    #model.save_pretrained(adapter_dir)
+    #tokenizer.save_pretrained(adapter_dir)
+    #print(f"Adapter saved to {adapter_dir}")
 
     # 10. Inference Example
     print("\n--- Running Inference ---")

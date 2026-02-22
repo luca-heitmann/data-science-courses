@@ -88,6 +88,7 @@ def get_model_components(model_type, lora_r, lora_alpha, lora_dropout):
 
         # --- STUDENT TASK 1a: GPT-2 (Decoder-only) Preprocessing ---
         def preprocess_function_gpt2(examples, tokenizer):
+            # TODO: Implement the preprocessing function for GPT-2
             # 1. Create the full instruction prompts (using the 'create_prompt_gpt2' helper)
             #    and add the EOS token (tokenizer.eos_token) to the end of each.
             # 2. Tokenize the prompts. Set 'truncation=True', 'max_length=256',
@@ -100,61 +101,21 @@ def get_model_components(model_type, lora_r, lora_alpha, lora_dropout):
             #    This is the most critical step! We only want the model to learn
             #    to predict the summary, not the prompt.
             # 6. Return the 'tokenized_outputs' dictionary.
-            full_instruction_prompts = [
-                create_prompt_gpt2({"dialogue": dialogue, "summary": summary})
-                + tokenizer.eos_token
-                for dialogue, summary in zip(examples["dialogue"], examples["summary"])
-            ]
-
-            tokenized_outputs = tokenizer(
-                full_instruction_prompts,
-                truncation=True,
-                max_length=256,
-                padding="max_length",
+            raise NotImplementedError(
+                "STUDENT: Please implement preprocess_function_gpt2"
             )
-
-            labels = [l.copy() for l in tokenized_outputs["input_ids"]]
-
-            prompts_without_summary = [
-                create_prompt_gpt2({"dialogue": dialogue})
-                for dialogue in examples["dialogue"]
-            ]
-
-            tokenized_without_summary = tokenizer(
-                prompts_without_summary,
-                truncation=True,
-                max_length=256,
-                padding=False,
-            )
-
-            for i, prompt_ids in enumerate(tokenized_without_summary["input_ids"]):
-                # set the prompt tokens to -100 as the model should not learn the prompt
-                prompt_length = len(prompt_ids)
-                labels[i][:prompt_length] = [-100] * prompt_length
-
-                # set the end of text tokens to -100 as the model should not learn the padding
-                for j in range(prompt_length, len(labels[i])):
-                    if tokenized_outputs["attention_mask"][i][j] == 0:
-                        labels[i][j] = -100
-
-            tokenized_outputs["labels"] = labels
-
-            return tokenized_outputs
 
         # --- STUDENT TASK 2a: GPT-2 (Decoder-only) LoRA Config ---
+        lora_config = None
+        # TODO: Create a LoraConfig object
         # 1. Set 'r', 'lora_alpha', and 'lora_dropout' using the function arguments.
         # 2. Set 'bias' to 'none'.
         # 3. Set the 'task_type' to "CAUSAL_LM" (this is crucial for GPT-2).
         # 4. Set the 'target_modules'. For GPT-2, this is typically ["c_attn"].
         #    (You can find this by printing the model architecture).
-        lora_config = LoraConfig(
-            r=lora_r,
-            lora_alpha=lora_alpha,
-            lora_dropout=lora_dropout,
-            bias="none",
-            task_type="CAUSAL_LM",
-            target_modules=["c_attn"],
-        )
+
+        if lora_config is None:
+            raise NotImplementedError("STUDENT: Please define the LoraConfig for GPT-2")
 
         return {
             "model_name": "gpt2",
@@ -168,6 +129,7 @@ def get_model_components(model_type, lora_r, lora_alpha, lora_dropout):
 
         # --- STUDENT TASK 1b: T5 (Encoder-Decoder) Preprocessing ---
         def preprocess_function_t5(examples, tokenizer):
+            # TODO: Implement the preprocessing function for T5
             # 1. Create the input strings. T5 *requires* a prefix for summarization.
             #    (e.g., "summarize: " + dialogue)
             # 2. Create the label strings (just the summaries).
@@ -178,48 +140,20 @@ def get_model_components(model_type, lora_r, lora_alpha, lora_dropout):
             # 5. Add the tokenized labels to the 'tokenized_inputs' dictionary
             #    under the key "labels".
             # 6. Return 'tokenized_inputs'.
-            for i in range(0, len(examples["dialogue"])):
-                examples["dialogue"][i] = "summarize: " + examples["dialogue"][i]
-
-            tokenized_inputs = tokenizer(
-                examples["dialogue"],
-                truncation=True,
-                max_length=512,
-                padding="max_length",
+            raise NotImplementedError(
+                "STUDENT: Please implement preprocess_function_t5"
             )
-
-            tokenized_labels = tokenizer(
-                text_target=examples["summary"],
-                truncation=True,
-                max_length=128,
-                padding="max_length",
-            )
-
-            # mask the padding tokens
-            label_ids = tokenized_labels["input_ids"]
-            for i in range(len(label_ids)):
-                label_ids[i] = [
-                    -100 if token == tokenizer.pad_token_id else token
-                    for token in label_ids[i]
-                ]
-
-            tokenized_inputs["labels"] = label_ids
-
-            return tokenized_inputs
 
         # --- STUDENT TASK 2b: T5 (Encoder-Decoder) LoRA Config ---
+        lora_config = None
+        # TODO: Create a LoraConfig object
         # 1. Set 'r', 'lora_alpha', and 'lora_dropout'.
         # 2. Set 'bias' to 'none'.
         # 3. Set the 'task_type' to "SEQ_2_SEQ_LM" (this is crucial for T5).
         # 4. Set the 'target_modules'. For T5, this is typically ["q", "v"].
-        lora_config = LoraConfig(
-            r=lora_r,
-            lora_alpha=lora_alpha,
-            lora_dropout=lora_dropout,
-            bias="none",
-            task_type="SEQ_2_SEQ_LM",
-            target_modules=["q", "v"],
-        )
+
+        if lora_config is None:
+            raise NotImplementedError("STUDENT: Please define the LoraConfig for T5")
 
         return {
             "model_name": "t5-small",
@@ -298,8 +232,8 @@ def main(args):
         gradient_accumulation_steps=args.grad_accumulation,
         num_train_epochs=args.epochs,
         learning_rate=args.learning_rate,
-        fp16=False,  # Use mixed precision
-        logging_steps=1,
+        fp16=True,  # Use mixed precision
+        logging_steps=50,
         save_total_limit=2,
         report_to="none",
     )
@@ -350,8 +284,10 @@ def main(args):
     # Create the correct prompt format for inference
     if args.model_type == "gpt2":
         prompt = create_prompt_gpt2({"dialogue": test_sample["dialogue"]})
+        input_length = len(prompt)
     else:  # t5
         prompt = "summarize: " + test_sample["dialogue"]
+        input_length = 0  # Not needed for T5
 
     inputs = tokenizer(prompt, return_tensors="pt").to(model.device)
 
@@ -361,19 +297,15 @@ def main(args):
         max_new_tokens=100,
         eos_token_id=tokenizer.eos_token_id if args.model_type == "gpt2" else None,
     )
+    decoded_output = tokenizer.decode(outputs[0], skip_special_tokens=True)
 
     print(f"**Prompt:**\n{prompt}")
 
     if args.model_type == "gpt2":
         # For GPT-2, we slice off the prompt
-        input_token_count = inputs["input_ids"].shape[1]
-        generated_summary = tokenizer.decode(
-            outputs[0][input_token_count:], skip_special_tokens=True
-        )
-        print(f"\n**Generated Summary:**\n{generated_summary}")
+        print(f"\n**Generated Summary:**\n{decoded_output[input_length:]}")
     else:
         # For T5, the output is only the summary
-        decoded_output = tokenizer.decode(outputs[0], skip_special_tokens=True)
         print(f"\n**Generated Summary:**\n{decoded_output}")
 
     print(f"\n**Ground Truth Summary:**\n{test_sample['summary']}")
