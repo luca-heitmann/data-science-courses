@@ -196,14 +196,14 @@ def get_model_components(model_type, lora_r, lora_alpha, lora_dropout):
             )
 
             # mask the padding tokens
-            label_ids = tokenized_labels["input_ids"]
-            for i in range(len(label_ids)):
-                label_ids[i] = [
-                    -100 if token == tokenizer.pad_token_id else token
-                    for token in label_ids[i]
-                ]
+            #label_ids = tokenized_labels["input_ids"]
+            #for i in range(len(label_ids)):
+            #    label_ids[i] = [
+            #        -100 if token == tokenizer.pad_token_id else token
+            #        for token in label_ids[i]
+            #    ]
 
-            tokenized_inputs["labels"] = label_ids
+            tokenized_inputs["labels"] = tokenized_labels["input_ids"]
 
             return tokenized_inputs
 
